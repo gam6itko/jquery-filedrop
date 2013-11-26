@@ -67,24 +67,24 @@
             globalProgressUpdated: empty,
             speedUpdated: empty
         },
-        ERRORS = ["BrowserNotSupported", "TooManyFiles", "FileTooLarge", "FileTypeNotAllowed", "NotFound", "NotReadable", "AbortError", "ReadError", "FileExtensionNotAllowed"];
+        errors = ["BrowserNotSupported", "TooManyFiles", "FileTooLarge", "FileTypeNotAllowed", "NotFound", "NotReadable", "AbortError", "ReadError", "FileExtensionNotAllowed"];
 
     $.fn.filedrop = function (options) {
-        var _opts = $.extend({}, default_opts, options),
-            _global_progress = [],
+        var opts = $.extend({}, default_opts, options),
+            global_progress = [],
             _doc_leave_timer,
             _stop_loop = false,
             _files_count = 0,
             _files;
 
-        $('#' + _opts.fallback_id).css({
+        $('#' + opts.fallback_id).css({
             display: 'none',
             width: 0,
             height: 0
         });
 
         this.on('drop', drop)
-            .on('dragstart', _opts.dragStart)
+            .on('dragstart', opts.dragStart)
             .on('dragenter', dragEnter)
             .on('dragover', dragOver)
             .on('dragleave', dragLeave);
@@ -93,13 +93,13 @@
             .on('dragover', docOver)
             .on('dragleave', docLeave);
 
-        if(_opts.fallback_id){
+        if(opts.fallback_id){
             this.on('click', function (e) {
-                $('#' + _opts.fallback_id).trigger(e);
+                $('#' + opts.fallback_id).trigger(e);
             });
 
-            $('#' + _opts.fallback_id).change(function (e) {
-                _opts.drop(e);
+            $('#' + opts.fallback_id).change(function (e) {
+                opts.drop(e);
                 _files = e.target.files;
                 _files_count = _files.length;
                 upload();
@@ -107,12 +107,12 @@
         }
 
         function drop(e) {
-            if (_opts.drop.call(this, e) === false) return false;
+            if (opts.drop.call(this, e) === false) return false;
             if (!e.dataTransfer) return;
 
             _files = e.dataTransfer.files;
             if (_files === null || _files === undefined || _files.length === 0) {
-                _opts.error(ERRORS[0]);
+                opts.error(errors[0]);
                 return false;
             }
             _files_count = _files.length;
@@ -182,17 +182,17 @@
                 if (data.currentProgress !== percentage) {
 
                     data.currentProgress = percentage;
-                    _opts.progressUpdated(data.index, data.file, data.currentProgress);
+                    opts.progressUpdated(data.index, data.file, data.currentProgress);
 
-                    _global_progress[data.global_progress_index] = data.currentProgress;
+                    global_progress[data.global_progress_index] = data.currentProgress;
                     globalProgress();
 
                     var elapsed = new Date().getTime();
                     var diffTime = elapsed - data.currentStart;
-                    if (diffTime >= _opts.refresh) {
+                    if (diffTime >= opts.refresh) {
                         var diffData = e.loaded - data.startData;
                         var speed = diffData / diffTime; // KB per second
-                        _opts.speedUpdated(data.index, data.file, speed);
+                        opts.speedUpdated(data.index, data.file, speed);
                         data.startData = e.loaded;
                         data.currentStart = elapsed;
                     }
@@ -201,18 +201,18 @@
         }
 
         function globalProgress() {
-            if (_global_progress.length === 0) {
+            if (global_progress.length === 0) {
                 return;
             }
 
             var total = 0, index;
-            for (index in _global_progress) {
-                if (_global_progress.hasOwnProperty(index)) {
-                    total = total + _global_progress[index];
+            for (index in global_progress) {
+                if (global_progress.hasOwnProperty(index)) {
+                    total = total + global_progress[index];
                 }
             }
 
-            _opts.globalProgressUpdated(Math.round(total / _global_progress.length));
+            opts.globalProgressUpdated(Math.round(total / global_progress.length));
         }
 
         // Respond to an upload
@@ -220,29 +220,29 @@
             _stop_loop = false;
 
             if (!_files) {
-                _opts.error(ERRORS[0]);
+                opts.error(errors[0]);
                 return false;
             }
 
-            if (_opts.allowedfiletypes.push && _opts.allowedfiletypes.length) {
+            if (opts.allowedfiletypes.push && opts.allowedfiletypes.length) {
                 for (var fileIndex = _files.length; fileIndex--;) {
-                    if (!_files[fileIndex].type || $.inArray(_files[fileIndex].type, _opts.allowedfiletypes) < 0) {
-                        _opts.error(ERRORS[3], _files[fileIndex]);
+                    if (!_files[fileIndex].type || $.inArray(_files[fileIndex].type, opts.allowedfiletypes) < 0) {
+                        opts.error(errors[3], _files[fileIndex]);
                         return false;
                     }
                 }
             }
 
-            if (_opts.allowedfileextensions.push && _opts.allowedfileextensions.length) {
+            if (opts.allowedfileextensions.push && opts.allowedfileextensions.length) {
                 for (var fileIndex = _files.length; fileIndex--;) {
                     var allowedextension = false;
-                    for (i = 0; i < _opts.allowedfileextensions.length; i++) {
-                        if (_files[fileIndex].name.substr(_files[fileIndex].name.length - _opts.allowedfileextensions[i].length) == _opts.allowedfileextensions[i]) {
+                    for (i = 0; i < opts.allowedfileextensions.length; i++) {
+                        if (_files[fileIndex].name.substr(_files[fileIndex].name.length - opts.allowedfileextensions[i].length) == opts.allowedfileextensions[i]) {
                             allowedextension = true;
                         }
                     }
                     if (!allowedextension) {
-                        _opts.error(ERRORS[8], _files[fileIndex]);
+                        opts.error(errors[8], _files[fileIndex]);
                         return false;
                     }
                 }
@@ -251,8 +251,8 @@
             var filesDone = 0,
                 filesRejected = 0;
 
-            if (_files_count > _opts.maxfiles && _opts.queuefiles === 0) {
-                _opts.error(ERRORS[1]);
+            if (_files_count > opts.maxfiles && opts.queuefiles === 0) {
+                opts.error(errors[1]);
                 return false;
             }
 
@@ -282,8 +282,8 @@
                 }
 
                 // Check to see if are in queue mode
-                if (_opts.queuefiles > 0 && processingQueue.length >= _opts.queuefiles) {
-                    return pause(_opts.queuewait);
+                if (opts.queuefiles > 0 && processingQueue.length >= opts.queuefiles) {
+                    return pause(opts.queuewait);
                 } else {
                     // Take first thing off work queue
                     fileIndex = workQueue[0];
@@ -299,11 +299,11 @@
                             return;
                         }
                         var reader = new FileReader(),
-                            max_file_size = _opts.maxfilesize * 1048576;//1048576 is 1 MByte
+                            max_file_size = opts.maxfilesize * 1048576;//1048576 is 1 MByte
 
                         reader.index = fileIndex;
                         if (_files[fileIndex].size > max_file_size) {
-                            _opts.error(ERRORS[2], _files[fileIndex], fileIndex);
+                            opts.error(errors[2], _files[fileIndex], fileIndex);
                             // Remove from queue
                             processingQueue.forEach(function (value, key) {
                                 if (value === fileIndex) {
@@ -317,22 +317,22 @@
                         reader.onerror = function (e) {
                             switch (e.target.error.code) {
                                 case e.target.error.NOT_FOUND_ERR:
-                                    _opts.error(ERRORS[4]);
+                                    opts.error(errors[4]);
                                     return false;
                                 case e.target.error.NOT_READABLE_ERR:
-                                    _opts.error(ERRORS[5]);
+                                    opts.error(errors[5]);
                                     return false;
                                 case e.target.error.ABORT_ERR:
-                                    _opts.error(ERRORS[6]);
+                                    opts.error(errors[6]);
                                     return false;
                                 default:
-                                    _opts.error(ERRORS[7]);
+                                    opts.error(errors[7]);
                                     return false;
                             }
                         }
 
-                        reader.onloadend = !_opts.beforeSend ? send : function (e) {
-                            _opts.beforeSend(_files[fileIndex], fileIndex, function () {
+                        reader.onloadend = !opts.beforeSend ? send : function (e) {
+                            opts.beforeSend(_files[fileIndex], fileIndex, function () {
                                 send(e);
                             });
                         }
@@ -349,7 +349,7 @@
                             processingQueue.splice(key, 1);
                         }
                     });
-                    _opts.error(ERRORS[0]);
+                    opts.error(errors[0]);
                     return false;
                 }
 
@@ -374,13 +374,13 @@
                     index = e.target.index,
                     start_time = new Date().getTime(),
                     //boundary = '------multipartformboundary' + (new Date()).getTime(),
-                    global_progress_index = _global_progress.length;
+                    global_progress_index = global_progress.length;
                     //builder,
                     //newName = rename(file.name),
                     //mime = file.type;
 
-                if (_opts.withCredentials) {
-                    xhr.withCredentials = _opts.withCredentials;
+                if (opts.withCredentials) {
+                    xhr.withCredentials = opts.withCredentials;
                 }
 
                 //var data = atob(e.target.result.split(',')[1]);
@@ -398,11 +398,11 @@
                 };
                 xhr.upload.onprogress = uploadProgress;
                 // Allow url to be a method
-                xhr.open(_opts.requestType, (jQuery.isFunction(_opts.url) ? _opts.url() :_opts.url), true);
+                xhr.open(opts.requestType, (jQuery.isFunction(opts.url) ? opts.url() :opts.url), true);
 
 //                xhr.setRequestHeader("Content-Type", "multipart/form-data; boundary=" + boundary);
 //                xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
-                $.each(_opts.headers, function (k, v) {
+                $.each(opts.headers, function (k, v) {
                     xhr.setRequestHeader(k, v);
                 });
 
@@ -420,7 +420,7 @@
 
                     var now = new Date().getTime(),
                         timeDiff = now - start_time,
-                        result = _opts.uploadFinished(index, file, serverResponse, timeDiff, xhr);
+                        result = opts.uploadFinished(index, file, serverResponse, timeDiff, xhr);
                     filesDone++;
 
                     // Remove from processing queue
@@ -434,7 +434,7 @@
                     doneQueue.push(fileIndex);
 
                     // Make sure the global progress is updated
-                    _global_progress[global_progress_index] = 100;
+                    global_progress[global_progress_index] = 100;
                     globalProgress();
 
                     if (filesDone === (_files_count - filesRejected)) {
@@ -447,26 +447,26 @@
 
                     // Pass any errors to the error option
                     if (xhr.status < 200 || xhr.status > 299) {
-                        _opts.error(xhr.statusText, file, fileIndex, xhr.status);
+                        opts.error(xhr.statusText, file, fileIndex, xhr.status);
                     }
                 };
 
                 var formData = new FormData();
-                if (_opts.data) {
-                    $.each(_opts.data, function (k, v) {
+                if (opts.data) {
+                    $.each(opts.data, function (k, v) {
                         formData.append(k,v);
                     });
                 }
 
-                formData.append( _opts.paramname, file);
+                formData.append( opts.paramname, file);
 
 //                xhr.sendAsBinary(builder);
                 xhr.send(formData)
 
-                _global_progress[global_progress_index] = 0;
+                global_progress[global_progress_index] = 0;
                 globalProgress();
 
-                _opts.uploadStarted(index, file, _files_count);
+                opts.uploadStarted(index, file, _files_count);
             };
 
             // Initiate the processing loop
@@ -484,60 +484,60 @@
         }
 
         function rename(name) {
-            return _opts.rename(name);
+            return opts.rename(name);
         }
 
         function beforeEach(file) {
-            return _opts.beforeEach(file);
+            return opts.beforeEach(file);
         }
 
         function afterAll() {
-            return _opts.afterAll();
+            return opts.afterAll();
         }
 
         function dragEnter(e) {
             clearTimeout(_doc_leave_timer);
             e.preventDefault();
-            _opts.dragEnter.call(this, e);
+            opts.dragEnter.call(this, e);
         }
 
         function dragOver(e) {
             clearTimeout(_doc_leave_timer);
             e.preventDefault();
-            _opts.docOver.call(this, e);
-            _opts.dragOver.call(this, e);
+            opts.docOver.call(this, e);
+            opts.dragOver.call(this, e);
         }
 
         function dragLeave(e) {
             clearTimeout(_doc_leave_timer);
-            _opts.dragLeave.call(this, e);
+            opts.dragLeave.call(this, e);
             e.stopPropagation();
         }
 
         function docDrop(e) {
             e.preventDefault();
-            _opts.docLeave.call(this, e);
+            opts.docLeave.call(this, e);
             return false;
         }
 
         function docEnter(e) {
             clearTimeout(_doc_leave_timer);
             e.preventDefault();
-            _opts.docEnter.call(this, e);
+            opts.docEnter.call(this, e);
             return false;
         }
 
         function docOver(e) {
             clearTimeout(_doc_leave_timer);
             e.preventDefault();
-            _opts.docOver.call(this, e);
+            opts.docOver.call(this, e);
             return false;
         }
 
         function docLeave(e) {
             _doc_leave_timer = setTimeout((function (_this) {
                 return function () {
-                    _opts.docLeave.call(_this, e);
+                    opts.docLeave.call(_this, e);
                 };
             })(this), 200);
         }
