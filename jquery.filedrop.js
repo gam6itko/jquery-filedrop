@@ -121,60 +121,6 @@
             return false;
         }
 
-//        function getBuilder(filename, filedata, mime, boundary) {
-//            var dashdash = '--',
-//                crlf = '\r\n',
-//                builder = '',
-//                paramname = _opts.paramname;
-//
-//            if (_opts.data) {
-//                var params = $.param(_opts.data).replace(/\+/g, '%20').split(/&/);
-//
-//                $.each(params, function () {
-//                    var pair = this.split("=", 2),
-//                        name = decodeURIComponent(pair[0]),
-//                        val = decodeURIComponent(pair[1]);
-//
-//                    if (pair.length !== 2) {
-//                        return;
-//                    }
-//
-//                    builder += dashdash;
-//                    builder += boundary;
-//                    builder += crlf;
-//                    builder += 'Content-Disposition: form-data; name="' + name + '"';
-//                    builder += crlf;
-//                    builder += crlf;
-//                    builder += val;
-//                    builder += crlf;
-//                });
-//            }
-//
-//            if (jQuery.isFunction(paramname)) {
-//                paramname = paramname(filename);
-//            }
-//
-//            builder += dashdash;
-//            builder += boundary;
-//            builder += crlf;
-//            builder += 'Content-Disposition: form-data; name="' + (paramname || "") + '"';
-//            builder += '; filename="' + filename + '"';
-//            builder += crlf;
-//
-//            builder += 'Content-Type: ' + mime;
-//            builder += crlf;
-//            builder += crlf;
-//
-//            builder += filedata;
-//            builder += crlf;
-//
-//            builder += dashdash;
-//            builder += boundary;
-//            builder += dashdash;
-//            builder += crlf;
-//            return builder;
-//        }
-
         function uploadProgress(e) {
             if (e.lengthComputable) {
                 var data = this.customData,
@@ -369,22 +315,14 @@
                 }
 
                 var xhr = new XMLHttpRequest(),
-//                    upload = xhr.upload,
                     file = _files[e.target.index],
                     index = e.target.index,
                     start_time = new Date().getTime(),
-                    //boundary = '------multipartformboundary' + (new Date()).getTime(),
                     global_progress_index = global_progress.length;
-                    //builder,
-                    //newName = rename(file.name),
-                    //mime = file.type;
 
                 if (opts.withCredentials) {
                     xhr.withCredentials = opts.withCredentials;
                 }
-
-                //var data = atob(e.target.result.split(',')[1]);
-                    //builder = getBuilder((typeof newName === "string"? newName :file.name), data, mime, boundary);
 
 
                 xhr.upload.customData = {
@@ -400,8 +338,6 @@
                 // Allow url to be a method
                 xhr.open(opts.requestType, (jQuery.isFunction(opts.url) ? opts.url() :opts.url), true);
 
-//                xhr.setRequestHeader("Content-Type", "multipart/form-data; boundary=" + boundary);
-//                xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
                 $.each(opts.headers, function (k, v) {
                     xhr.setRequestHeader(k, v);
                 });
@@ -460,7 +396,6 @@
 
                 formData.append( opts.paramname, file);
 
-//                xhr.sendAsBinary(builder);
                 xhr.send(formData)
 
                 global_progress[global_progress_index] = 0;
