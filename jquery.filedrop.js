@@ -58,7 +58,7 @@
             beforeSend: null,
             afterAll: empty,
             rename: empty,
-            error: function(err, file, i, status) {
+            error: function (err, file, i, status) {
                 console.error(err, file, i, status);
             },
             uploadStarted: empty,
@@ -93,7 +93,7 @@
             .on('dragover', docOver)
             .on('dragleave', docLeave);
 
-        if(opts.fallback_id){
+        if (opts.fallback_id) {
             this.on('click', function (e) {
                 $('#' + opts.fallback_id).trigger(e);
             });
@@ -326,17 +326,17 @@
 
 
                 xhr.upload.customData = {
-                    index : index,
-                    file : file,
-                    downloadStartTime : start_time,
-                    currentStart : start_time,
-                    currentProgress : 0,
-                    global_progress_index : global_progress_index,
-                    startData : 0
+                    index: index,
+                    file: file,
+                    downloadStartTime: start_time,
+                    currentStart: start_time,
+                    currentProgress: 0,
+                    global_progress_index: global_progress_index,
+                    startData: 0
                 };
                 xhr.upload.onprogress = uploadProgress;
                 // Allow url to be a method
-                xhr.open(opts.requestType, (jQuery.isFunction(opts.url) ? opts.url() :opts.url), true);
+                xhr.open(opts.requestType, (jQuery.isFunction(opts.url) ? opts.url() : opts.url), true);
 
                 $.each(opts.headers, function (k, v) {
                     xhr.setRequestHeader(k, v);
@@ -390,11 +390,11 @@
                 var formData = new FormData();
                 if (opts.data) {
                     $.each(opts.data, function (k, v) {
-                        formData.append(k,v);
+                        formData.append(k, v);
                     });
                 }
 
-                formData.append( opts.paramname, file);
+                formData.append(opts.paramname, file);
 
                 xhr.send(formData)
 
@@ -499,10 +499,11 @@
             // to sending ArrayBufferView.  Sadly, no proper way to detect this
             // functionality has been discovered.  Happily, Chrome 22 also introduced
             // the base ArrayBufferView class, not present in Chrome 21.
-            if ('ArrayBufferView' in window)
+            if ('ArrayBufferView' in window) {
                 this.send(ui8a);
-            else
+            } else {
                 this.send(ui8a);
+            }
         };
     } catch (e) {
     }
